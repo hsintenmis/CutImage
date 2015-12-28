@@ -43,6 +43,13 @@
                                     <action selector="actSelImg:" destination="BYZ-38-t0r" eventType="touchUpInside" id="vVi-by-GHx"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kmF-zd-M0O">
+                                <rect key="frame" x="96" y="382" width="128" height="30"/>
+                                <state key="normal" title="camera"/>
+                                <connections>
+                                    <action selector="actCamera:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PIW-dE-9m5"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -55,8 +62,11 @@
                             <constraint firstItem="d61-Pa-SGy" firstAttribute="trailing" secondItem="dFH-Wi-zgf" secondAttribute="trailing" id="LLK-zm-Obq"/>
                             <constraint firstItem="DXz-r6-FVr" firstAttribute="top" secondItem="dFH-Wi-zgf" secondAttribute="bottom" constant="20" id="Ohz-re-JJU"/>
                             <constraint firstItem="S9W-3f-luA" firstAttribute="trailing" secondItem="dFH-Wi-zgf" secondAttribute="trailing" id="UDQ-lz-Bk5"/>
+                            <constraint firstItem="kmF-zd-M0O" firstAttribute="top" secondItem="S9W-3f-luA" secondAttribute="bottom" constant="8" id="Vdw-YA-jZT"/>
                             <constraint firstItem="DXz-r6-FVr" firstAttribute="trailing" secondItem="dFH-Wi-zgf" secondAttribute="trailing" id="Wc2-rn-Dnk"/>
                             <constraint firstItem="S9W-3f-luA" firstAttribute="top" secondItem="d61-Pa-SGy" secondAttribute="bottom" constant="8" id="aUx-km-D3S"/>
+                            <constraint firstItem="kmF-zd-M0O" firstAttribute="trailing" secondItem="dFH-Wi-zgf" secondAttribute="trailing" id="rYj-Ie-4bR"/>
+                            <constraint firstItem="kmF-zd-M0O" firstAttribute="leading" secondItem="dFH-Wi-zgf" secondAttribute="leading" id="x4Y-rH-NTH"/>
                         </constraints>
                     </view>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>

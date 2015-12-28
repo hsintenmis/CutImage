@@ -21,7 +21,7 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
     
     
     // 圖片相關參數設定, 裁剪框的frame
-    var scaleRation: CGFloat = 3.0  //图片缩放的最大倍数
+    var scaleRation: CGFloat = 3.0  // 图片缩放的最大倍数
     var radius: CGFloat = 120.0  //圆形裁剪框的半径
     var circularFrame: CGRect?
     var OriginalFrame: CGRect?
@@ -37,13 +37,16 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.CreatUI()
-        self.addAllGesture()
+        //self.CreatUI()
+        //self.addAllGesture()
     }
     
     // View DidAppear
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(true)
+        
+        //self.CreatUI()
+        //self.addAllGesture()
     }
     
     /**
@@ -51,6 +54,9 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
     */
     func initWithImage(img: UIImage) {
         self._image = self.fixOrientation(img)
+        
+        self.CreatUI()
+        self.addAllGesture()
     }
     
     /**
@@ -131,7 +137,7 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
         let myRect: CGRect = CGRectMake(origX, origY, oriWidth, oriHeight)
         let imageRef: CGImageRef = CGImageCreateWithImageInRect(_image.CGImage, myRect)!
 
-        UIGraphicsBeginImageContext(myRect.size);
+        UIGraphicsBeginImageContext(myRect.size)
         let context: CGContextRef = UIGraphicsGetCurrentContext()!
         CGContextDrawImage(context, myRect, imageRef)
         
@@ -197,7 +203,7 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
         layer.path = mPath.CGPath
         layer.fillRule = kCAFillRuleEvenOdd;
         layer.fillColor = UIColor.blackColor().CGColor
-        layer.opacity = 0.5;
+        layer.opacity = 0.5; // 透明度
         
         _overView.layer.addSublayer(layer)
     }
@@ -313,15 +319,70 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    
     /**
     * 修正圖片方向
     */
     private func fixOrientation(image: UIImage!) -> UIImage {
+        //return image.imageWithRenderingMode(.AlwaysOriginal)
+        
         if (image.imageOrientation == UIImageOrientation.Up) {
             return image
         }
         
+        //var transform: CGAffineTransform = CGAffineTransformIdentity
+        let transform = self._getTransform(image)
+
+        //let ctx: CGContextRef = CGBitmapContextCreate(nil, Int(image.size.width), Int(image.size.height), CGImageGetBitsPerComponent(image.CGImage), 0, CGImageGetColorSpace(image.CGImage), UInt32(CGImageGetBitmapInfo(image.CGImage).rawValue))!
+
+        let size = image.size
+        let cgImage = image.CGImage
+        let width = CGImageGetWidth(cgImage)
+        let height = CGImageGetHeight(cgImage)
+        let bitsPerComponent = CGImageGetBitsPerComponent(cgImage)
+        let bytesPerRow = CGImageGetBytesPerRow(cgImage)
+        let colorSpace = CGImageGetColorSpace(cgImage)
+        let bitmapInfo = CGImageGetBitmapInfo(cgImage)
+        
+        //UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+        //image.drawInRect(CGRect(origin: CGPointZero, size: size))
+        
+        UIGraphicsBeginImageContext(size)
+        image.drawInRect(CGRect(origin: CGPointZero, size: size))
+        
+        let ctx = CGBitmapContextCreate(nil, width, height, bitsPerComponent, bytesPerRow, colorSpace, bitmapInfo.rawValue)
+        
+        CGContextConcatCTM(ctx, transform)
+        
+        // 判別是否需要調換 長/寬
+        var mRect: CGRect = CGRectMake(0, 0, image.size.width, image.size.height)
+        
+        switch (image.imageOrientation) {
+        case UIImageOrientation.Left: break
+        case UIImageOrientation.LeftMirrored: break
+        case UIImageOrientation.Right: break
+        case UIImageOrientation.RightMirrored:
+            mRect = CGRectMake(0,0, image.size.height, image.size.width)
+            break
+        default:
+            break
+        }
+        
+        // 重新繪製 image
+        let cgNewImage = CGBitmapContextCreateImage(ctx)
+        CGContextDrawImage(ctx, mRect, cgNewImage)
+        let img = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        //let cgimg: CGImageRef = CGBitmapContextCreateImage(ctx)!
+        //let img: UIImage = UIImage(CGImage: cgimg)
+        
+        return img
+    }
+    
+    /**
+    * 修正圖片方向，回傳 'CGAffineTransform'
+    */
+    private func _getTransform(image: UIImage!)->CGAffineTransform {
         var transform: CGAffineTransform = CGAffineTransformIdentity
         
         switch (image.imageOrientation) {
@@ -342,7 +403,7 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
             transform = CGAffineTransformTranslate(transform, 0, image.size.height)
             transform = CGAffineTransformRotate(transform, CGFloat(-M_PI_2))
             break
-        
+            
         default:
             break
         }
@@ -364,35 +425,7 @@ class CutImage: UIViewController, UIGestureRecognizerDelegate {
             break
         }
         
-        let ctx: CGContextRef =
-            CGBitmapContextCreate(
-                nil, Int(image.size.width), Int(image.size.height),
-                CGImageGetBitsPerComponent(image.CGImage), 0,
-                CGImageGetColorSpace(image.CGImage),
-                UInt32(CGImageGetBitmapInfo(image.CGImage).rawValue)
-        )!
-        
-        CGContextConcatCTM(ctx, transform)
-        
-        switch (image.imageOrientation) {
-        case UIImageOrientation.Left: break
-        case UIImageOrientation.LeftMirrored: break
-        case UIImageOrientation.Right: break
-        case UIImageOrientation.RightMirrored:
-            CGContextDrawImage(ctx, CGRectMake(0,0,image.size.height,image.size.width), image.CGImage);
-            break
-            
-        default:
-            CGContextDrawImage(ctx, CGRectMake(0,0,image.size.width,image.size.height), image.CGImage);
-            break
-        }
-        
-        let cgimg: CGImageRef = CGBitmapContextCreateImage(ctx)!
-        let img: UIImage = UIImage(CGImage: cgimg)
-        //CGContextRelease(ctx);
-        //CGImageRelease(cgimg);
-        
-        return img;
+        return transform
     }
 
 }
